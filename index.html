@@ -1,0 +1,1439 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Modern Portfolio | Creative Developer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* CSS Custom Properties (Variables) */
+    :root {
+      --primary: #6366f1; /* Indigo-500 */
+      --primary-dark: #4f46e5; /* Indigo-600 */
+      --secondary: #f43f5e; /* Rose-500 */
+      --dark: #0f172a; /* Slate-900 */
+      --light: #f8fafc; /* Slate-50 */
+      --header-height: 70px; /* Approximate height of fixed header for scroll offset */
+    }
+
+    /* Base body styling */
+    body {
+      font-family: "Inter", sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      overflow-x: hidden; /* Prevent horizontal scroll */
+      scroll-behavior: smooth; /* Smooth scrolling for anchor links (Fallback/General) */
+      padding-top: var(--header-height); /* Add padding to body to prevent content hiding behind fixed nav */
+    }
+
+    /* Adjust fixed nav positioning */
+    nav.fixed {
+        top: 0;
+    }
+
+    /* Adjust section targeting offset for fixed header */
+    section[id] {
+      scroll-margin-top: var(--header-height);
+    }
+
+
+    /* Gradient text utility */
+    .gradient-text {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+    }
+
+    /* Glassmorphism card effect */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+      backdrop-filter: blur(10px); /* Background blur */
+      -webkit-backdrop-filter: blur(10px); /* Safari support */
+      border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); /* Soft shadow */
+    }
+
+    /* Hero section background gradient */
+    .hero-bg {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(244, 63, 94, 0.1) 100%);
+      padding-top: 0; /* Remove extra padding from hero as body has padding */
+      margin-top: calc(-1 * var(--header-height)); /* Pull hero up to counteract body padding */
+      min-height: calc(100vh); /* Adjust height calculation - keep full viewport */
+      display: flex; /* Use flex to help center content vertically */
+      align-items: center; /* Center content vertically */
+    }
+
+    /* Floating animation */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); } /* Adjust float height */
+    }
+    .floating { animation: float 6s ease-in-out infinite; }
+
+    /* 3D tilt effect on hover */
+    .tilt-element { transition: transform 0.2s ease-out; }
+
+    /* Button Styles */
+    .btn-primary, .btn-secondary {
+        padding: 0.75rem 2rem;
+        font-weight: bold;
+        border-radius: 9999px; /* Pill shape */
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s ease; /* Smooth transitions */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        text-decoration: none; /* Ensure links look like buttons */
+    }
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px) scale(1.03); /* Lift effect */
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    .btn-secondary {
+      background-color: white;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    .btn-secondary:hover {
+      background-color: var(--primary);
+      color: white;
+      transform: translateY(-2px) scale(1.03); /* Lift effect */
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Navigation link underline animation */
+    .nav-link {
+        position: relative;
+        cursor: pointer;
+        padding-bottom: 6px; /* Space for underline */
+    }
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: 0; /* Positioned at the bottom */
+      left: 50%; /* Start from center */
+      transform: translateX(-50%); /* Center the line */
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transition: width 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+    .nav-link:hover::after,
+    .nav-link.active::after {
+        width: 100%; /* Expand fully on hover/active */
+    }
+
+    /* Floating particles background effect */
+    .particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none; /* Allow clicks through */
+      z-index: 0;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      border-radius: 50%;
+      opacity: 0.2; /* Subtle visibility */
+      animation: float 15s infinite linear alternate; /* Varied animation */
+    }
+
+    /* Scroll down indicator animation */
+    .scroll-indicator {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px; /* Adjusted size */
+      height: 50px; /* Adjusted size */
+      border: 2px solid rgba(15, 23, 42, 0.3); /* Darker border */
+      border-radius: 15px; /* Adjusted radius */
+      z-index: 50;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+    .scroll-indicator.hidden {
+       opacity: 0;
+       pointer-events: none;
+    }
+    .scroll-indicator::before { /* The moving dot */
+      content: "";
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: var(--primary);
+      border-radius: 50%;
+      top: 8px; /* Start position */
+      left: 50%;
+      transform: translateX(-50%);
+      animation: scroll 2s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Bounce effect */
+    }
+    @keyframes scroll {
+      0% { transform: translate(-50%, 0px); opacity: 0; }
+      40% { opacity: 1; }
+      80% { transform: translate(-50%, 20px); opacity: 0; } /* Move down */
+      100% { opacity: 0; }
+    }
+
+    /* --- Project Slideshow Styling --- */
+    .project-slideshow-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px; /* Adjust max-width as needed */
+      margin: 0 auto; /* Center the slideshow */
+      overflow: hidden; /* Hide overflowing slides */
+      padding-bottom: 2.5rem; /* Add space below for dots */
+    }
+
+    .slides-wrapper {
+      display: flex;
+      transition: transform 0.5s ease-in-out; /* Slide transition */
+      width: 100%;
+    }
+
+    .slide {
+      flex: 0 0 100%; /* Each slide takes full width */
+      width: 100%;
+      box-sizing: border-box; /* Include padding in width */
+      padding: 0 0.5rem; /* Add slight padding between slides if needed */
+      display: flex; /* Center card inside */
+      justify-content: center; /* Center card inside */
+    }
+
+    /* Ensure project card takes appropriate width within the slide */
+    .slide .project-card {
+       width: 100%; /* Card takes full width of the slide container */
+       max-width: 420px; /* Max width for the card itself */
+       margin: 0 auto 1rem auto; /* Center card and add bottom margin */
+       transition: transform 0.3s ease, box-shadow 0.3s ease;
+       display: flex; /* Use flexbox for card layout */
+       flex-direction: column; /* Stack image and content vertically */
+       height: 100%; /* Make cards in slider same height */
+    }
+    .project-card:hover {
+        transform: translateY(-5px); /* Lift card on hover */
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15); /* Enhanced shadow */
+    }
+
+    .slideshow-nav-btn {
+      position: absolute;
+      top: calc(50% - 1.25rem); /* Adjust vertical position considering dot space */
+      transform: translateY(-50%);
+      background-color: rgba(15, 23, 42, 0.5); /* Semi-transparent dark */
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 2.5rem; /* 40px */
+      height: 2.5rem; /* 40px */
+      font-size: 1rem; /* Adjust icon size */
+      cursor: pointer;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .slideshow-nav-btn:hover {
+      background-color: var(--primary);
+      transform: translateY(-50%) scale(1.1);
+    }
+    .slideshow-nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      background-color: rgba(15, 23, 42, 0.3);
+    }
+    .slideshow-prev {
+      left: 0.5rem; /* Adjust position */
+    }
+    .slideshow-next {
+      right: 0.5rem; /* Adjust position */
+    }
+
+    .slideshow-dots {
+      position: absolute;
+      bottom: 0; /* Position below the cards */
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.75rem; /* Space between dots */
+      z-index: 10;
+      padding-top: 1rem; /* Space above dots */
+    }
+
+    .slideshow-dot-btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: rgba(99, 102, 241, 0.4); /* Light primary */
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .slideshow-dot-btn.active {
+      background-color: var(--primary); /* Active dot color */
+      transform: scale(1.2);
+    }
+
+    /* Project Modal Styling */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0; /* Covers the whole screen */
+      background-color: rgba(15, 23, 42, 0.85); /* Darker backdrop */
+      z-index: 100;
+      overflow-y: auto; /* Allow modal scroll if content overflows */
+      padding: 1rem;
+      box-sizing: border-box;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; } /* Use flex to enable centering */
+
+    .modal-content {
+      background-color: white;
+      margin: auto;
+      max-width: 900px;
+      width: 95%;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* Smoother fade-in */
+      max-height: 90vh; /* Limit height */
+      display: flex;
+      flex-direction: column;
+      position: relative; /* Needed for absolute positioning of close button */
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      padding: 1.5rem 2rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      border-top-left-radius: 12px; /* Match container radius */
+      border-top-right-radius: 12px;
+    }
+    .modal-body {
+      padding: 1.5rem 2rem 2rem 2rem; /* Adjusted padding */
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.8rem; /* Slightly larger */
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.3s ease, color 0.3s ease;
+      line-height: 1;
+      padding: 0.5rem; /* Make it easier to click */
+       position: absolute; /* Position relative to modal-content */
+       top: 0.75rem;
+       right: 1rem;
+       color: rgba(255, 255, 255, 0.8);
+    }
+    .close-btn:hover {
+      transform: rotate(180deg) scale(1.1); /* Rotate and scale */
+      color: white;
+    }
+
+    /* Project Slideshow in Modal (Existing) */
+    .slideshow-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      margin-bottom: 1.5rem; /* Reduced margin */
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #e5e7eb; /* Light gray background */
+    }
+    .slide-modal { /* Renamed to avoid conflict */
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.7s ease-in-out; /* Smoother transition */
+      background-size: contain; /* Ensure full image is visible */
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .slide-modal.active { opacity: 1; z-index: 1; }
+
+    .slideshow-controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      background: rgba(0,0,0,0.6); /* Darker background for contrast */
+      padding: 0.5rem 1rem;
+      border-radius: 99px;
+    }
+    .slideshow-dot-modal { /* Renamed to avoid conflict */
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.5);
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease; /* Add transform transition */
+    }
+    .slideshow-dot-modal.active {
+        background-color: white;
+        transform: scale(1.2); /* Make active dot slightly larger */
+    }
+
+    /* Skills Section Styling */
+    .skill-category {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* Slightly softer shadow */
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      margin-bottom: 1.5rem; /* Ensure spacing */
+      height: 100%; /* Make categories in a row equal height */
+    }
+    .skill-category:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .skill-category h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+    }
+    .skill-category h3 i {
+      margin-right: 0.75rem;
+      font-size: 1.5rem;
+      width: 24px; /* Ensure consistent icon width */
+      text-align: center;
+    }
+    .skill-tag {
+      display: inline-block;
+      background-color: rgba(99, 102, 241, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      margin: 0.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      cursor: default; /* Indicate non-interactive */
+    }
+    .skill-tag:hover {
+      background-color: var(--primary);
+      color: white;
+      transform: scale(1.05);
+    }
+    /* Skill level color variations */
+    .skill-tag.advanced { background-color: rgba(16, 185, 129, 0.1); color: #10b981; } /* Green */
+    .skill-tag.advanced:hover { background-color: #10b981; color: white; }
+    .skill-tag.intermediate { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; } /* Amber */
+    .skill-tag.intermediate:hover { background-color: #f59e0b; color: white; }
+    .skill-tag.beginner { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; } /* Red */
+    .skill-tag.beginner:hover { background-color: #ef4444; color: white; }
+
+    /* Ensure project card content fills height */
+    .project-card > div:last-child {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+     .project-card > div:last-child > p {
+        flex-grow: 1; /* Make paragraph take up available space */
+     }
+
+     /* Tech tags in modal */
+     #modal-tech-tags .skill-tag {
+         font-size: 0.8rem; /* Smaller tags in modal */
+         padding: 0.4rem 0.8rem;
+     }
+
+     /* Adjust modal link button size */
+     #modal-live-link .btn-secondary,
+     #modal-repo-link .btn-secondary {
+         padding: 0.5rem 1.5rem;
+         font-size: 0.9rem;
+     }
+  </style>
+</head>
+<body class="antialiased">
+  <div class="particles" id="particles"></div>
+
+<!-- NAV Section -->
+<nav class="fixed w-full py-4 px-6 z-50 bg-white bg-opacity-90 backdrop-blur-sm shadow-md">
+  <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <a href="#" class="text-2xl font-bold text-dark">
+      <span class="gradient-text">Portfolio</span>
+    </a>
+    <!-- Desktop Navigation Links -->
+    <div class="flex space-x-4 md:space-x-8">
+      <a href="#home" class="nav-link active text-dark font-medium">Home</a>
+      <a href="#about" class="nav-link text-dark font-medium">About</a>
+      <a href="#skills" class="nav-link text-dark font-medium">Skills</a>
+      <a href="#projects" class="nav-link text-dark font-medium">Work</a>
+      <a href="#contact" class="nav-link text-dark font-medium">Contact</a>
+    </div>
+  </div>
+</nav>
+
+  <!-- HOME Section -->
+  <section id="home" class="min-h-screen flex items-center justify-center relative overflow-hidden hero-bg">
+    <div class="max-w-7xl mx-auto px-6 py-16 md:py-24">
+        <div class="flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-12 md:mb-0 relative z-10 text-center md:text-left"> <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"> Hi, I'm <span class="gradient-text">Sam Bayati</span>
+              </h1>
+              <p class="text-lg text-gray-600 mb-10 max-w-lg mx-auto md:mx-0"> I'm an IT expert based in Houston, TX, with a passion for using technology to empower businesses.
+                I develop strategic IT solutions that enhance operational performance and drive measurable results.
+                My approach blends technical expertise with a deep understanding of business needs for impactful, innovative outcomes.
+              </p>
+              <div class="flex flex-wrap gap-4 justify-center md:justify-start"> <a href="#contact" class="btn-primary">Get In Touch</a>
+                <a href="#projects" class="btn-secondary">View My Work</a>
+              </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center relative mt-10 md:mt-0"> <div class="relative">
+                <img src="https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80"
+                     alt="Creative Developer Illustration" class="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-2xl object-cover shadow-2xl floating tilt-element" /> </div>
+            </div>
+        </div>
+    </div>
+    <div id="scroll-indicator" class="scroll-indicator"></div>
+  </section>
+
+  <!-- ABOUT Section -->
+  <section id="about" class="py-20 lg:py-28 bg-white relative"> <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold mb-4">About <span class="gradient-text">Me</span></h2>
+        <div class="w-20 h-1 bg-gradient-to-r from-primary to-secondary mx-auto"></div>
+      </div>
+      <div class="flex flex-col md:flex-row items-center gap-12 lg:gap-16"> <div class="md:w-1/3 relative">
+          <img src="https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80"
+               alt="Sam Bayati - IT Professional in Houston" class="w-full max-w-sm mx-auto md:max-w-md rounded-2xl shadow-xl tilt-element" /> </div>
+        <div class="md:w-2/3">
+          <h3 class="text-2xl lg:text-3xl font-bold mb-6">Who am I?</h3> <p class="text-gray-600 mb-6 leading-relaxed">
+            I'm a passionate IT professional and digital innovator with over 5 years of experience helping businesses optimize operations and drive growth. My journey began at a young age, and I've continuously evolved with technology to deliver impactful solutions right here in Houston.
+          </p>
+          <p class="text-gray-600 mb-8 leading-relaxed">
+            I specialize in designing and implementing strategic IT solutions, blending technical expertise with a keen understanding of business needs to foster innovation and efficiency.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8"> <div class="flex items-center">
+              <div class="bg-primary bg-opacity-10 p-3 rounded-full mr-4 flex-shrink-0"> <i class="fas fa-user text-primary text-lg"></i> </div>
+              <div>
+                <h4 class="font-semibold text-dark">Name:</h4>
+                <p class="text-gray-600">Sam Bayati</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <div class="bg-primary bg-opacity-10 p-3 rounded-full mr-4 flex-shrink-0">
+                <i class="fas fa-envelope text-primary text-lg"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-dark">Email:</h4>
+                <p class="text-gray-600 break-words"> smsmalbayati@yahoo.com<br/>
+                  albayatii1@gator.uhd.edu
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <div class="bg-primary bg-opacity-10 p-3 rounded-full mr-4 flex-shrink-0">
+                <i class="fas fa-map-marker-alt text-primary text-lg"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-dark">Location:</h4>
+                <p class="text-gray-600">Houston, Texas</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <div class="bg-primary bg-opacity-10 p-3 rounded-full mr-4 flex-shrink-0">
+                <i class="fas fa-phone-alt text-primary text-lg"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-dark">Phone:</h4>
+                <p class="text-gray-600">+1 832-807-5118</p>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-4">
+            <a href="resume.pdf" class="btn-primary" target="_blank" rel="noopener noreferrer"> <i class="fas fa-download mr-2"></i> Download CV
+            </a>
+            <a href="#contact" class="btn-secondary">
+              <i class="fas fa-paper-plane mr-2"></i> Contact Me
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- SKILLS Section -->
+<section id="skills" class="py-20 lg:py-28 bg-gray-50 relative">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl font-bold mb-4">
+        My <span class="gradient-text">Skills</span>
+      </h2>
+      <div class="w-20 h-1 bg-gradient-to-r from-primary to-secondary mx-auto"></div>
+      <p class="text-gray-600 max-w-2xl mx-auto mt-6">
+        A blend of technical expertise, creative problem-solving, and business acumen allows me to tackle diverse challenges.
+      </p>
+    </div>
+
+    <!-- Skills Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Technical Skills -->
+      <div class="skill-category">
+        <h3><i class="fas fa-code"></i> Technical Skills</h3>
+        <div class="flex flex-wrap gap-2">
+          <span class="skill-tag intermediate">Python</span>
+          <span class="skill-tag intermediate">SQL</span>
+          <span class="skill-tag intermediate">Flask</span>
+          <span class="skill-tag intermediate">SQLAlchemy</span>
+          <span class="skill-tag beginner">Unreal Engine 5</span>
+          <span class="skill-tag intermediate">GitHub</span>
+        </div>
+      </div>
+
+      <!-- IT & Networking -->
+      <div class="skill-category">
+        <h3><i class="fas fa-network-wired"></i> IT & Networking</h3>
+        <div class="flex flex-wrap gap-2">
+          <span class="skill-tag advanced">Active Directory</span>
+          <span class="skill-tag advanced">VPN Configuration</span>
+          <span class="skill-tag intermediate">VMware</span>
+          <span class="skill-tag intermediate">Wireshark</span>
+          <span class="skill-tag intermediate">Nmap</span>
+          <span class="skill-tag intermediate">Network Security</span>
+          <span class="skill-tag intermediate">System Administration</span>
+        </div>
+      </div>
+
+      <!-- Web Development -->
+      <div class="skill-category">
+        <h3><i class="fas fa-globe"></i> Web Development</h3>
+        <div class="flex flex-wrap gap-2">
+          <span class="skill-tag advanced">WordPress</span>
+          <span class="skill-tag intermediate">Elementor</span>
+          <span class="skill-tag advanced">SEO Optimization</span>
+          <span class="skill-tag intermediate">Responsive Design</span>
+          <span class="skill-tag intermediate">Web Security</span>
+          <span class="skill-tag intermediate">Malware Cleanup</span>
+        </div>
+      </div>
+
+      <!-- Business & Marketing -->
+      <div class="skill-category">
+        <h3><i class="fas fa-chart-line"></i> Business & Marketing</h3>
+        <div class="flex flex-wrap gap-2">
+          <span class="skill-tag advanced">Google Ads</span>
+          <span class="skill-tag advanced">Facebook Ads</span>
+          <span class="skill-tag intermediate">Digital Marketing</span>
+          <span class="skill-tag intermediate">Project Management</span>
+          <span class="skill-tag intermediate">CRM Systems</span>
+          <span class="skill-tag intermediate">Microsoft Office</span>
+          <span class="skill-tag intermediate">Microsoft Access</span>
+          <span class="skill-tag intermediate">Notion</span>
+        </div>
+      </div>
+
+      <!-- Design & Creativity -->
+      <div class="skill-category">
+        <h3><i class="fas fa-paint-brush"></i> Design & Creativity</h3>
+        <div class="flex flex-wrap gap-2">
+          <span class="skill-tag intermediate">UI/UX Design</span>
+          <span class="skill-tag intermediate">Figma</span>
+          <span class="skill-tag intermediate">Canva</span>
+          <span class="skill-tag beginner">3D Modeling</span>
+          <span class="skill-tag beginner">Game Design</span>
+        </div>
+      </div>
+
+      <!-- Soft Skills -->
+      <div class="skill-category">
+        <h3><i class="fas fa-comments"></i> Soft Skills</h3>
+        <div class="flex flex-wrap gap-2">
+          <span class="skill-tag advanced">Communication</span>
+          <span class="skill-tag advanced">Problem Solving</span>
+          <span class="skill-tag intermediate">Team Collaboration</span>
+          <span class="skill-tag intermediate">Time Management</span>
+          <span class="skill-tag intermediate">Client Relations</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Operating Systems -->
+    <div class="mt-16">
+      <h3 class="text-2xl font-bold mb-8 text-center">Operating Systems</h3>
+      <div class="flex flex-wrap justify-center items-center gap-4 md:gap-6 os-container">
+        <span class="skill-tag intermediate">Windows</span>
+        <span class="skill-tag intermediate">macOS</span>
+        <span class="skill-tag intermediate">Linux</span>
+        <span class="skill-tag intermediate">Kali Linux</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- PROJECTS Section -->
+  <section id="projects" class="py-20 lg:py-28 bg-white relative">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold mb-4">My <span class="gradient-text">Work</span></h2>
+        <div class="w-20 h-1 bg-gradient-to-r from-primary to-secondary mx-auto"></div>
+        <p class="text-gray-600 max-w-2xl mx-auto mt-6">
+          Here are some of my recent projects. Use the navigation dots or arrows to browse. Click "View Details" on selected works to explore them further.
+        </p>
+      </div>
+
+      <!-- Slideshow Structure -->
+      <div id="project-slideshow" class="project-slideshow-container">
+        <div class="slides-wrapper">
+
+          <!-- Slide 1: IT Inventory -->
+          <div class="slide">
+            <div class="project-card bg-white rounded-xl overflow-hidden shadow-lg">
+              <div class="relative overflow-hidden h-60">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
+                     alt="IT Inventory Management System Dashboard"
+                     class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                <div class="absolute bottom-0 left-0 p-4 md:p-6">
+                  <h3 class="text-xl font-bold text-white">IT Inventory Management</h3>
+                  <p class="text-sm text-gray-200">Flask, SQLAlchemy, SQLite</p>
+                </div>
+              </div>
+              <div class="p-6 flex flex-col flex-grow">
+                <p class="text-gray-600 mb-4 text-sm flex-grow"> A comprehensive IT asset management system for tracking hardware/software inventory, scheduling maintenance, and calculating financial depreciation.
+                </p>
+                <div class="flex justify-between items-center mt-auto">
+                  <button class="text-primary font-semibold hover:underline text-sm view-project-btn" data-project="it-inventory">View Details</button>
+                  <button class="text-gray-400 hover:text-primary view-project-btn" data-project="it-inventory" aria-label="View IT Inventory Project Details"> <i class="fas fa-expand-alt"></i> </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 2: DriveWise -->
+          <div class="slide">
+            <div class="project-card bg-white rounded-xl overflow-hidden shadow-lg">
+              <div class="relative overflow-hidden h-60">
+                <img src="https://i.imgur.com/fpcaaN2.png"
+                     alt="DriveWise CRM Collaboration"
+                     class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                <div class="absolute bottom-0 left-0 p-4 md:p-6">
+                  <h3 class="text-xl font-bold text-white">DriveWise</h3>
+                  <p class="text-sm text-gray-200">CRM & SAAS Project</p>
+                </div>
+              </div>
+              <div class="p-6 flex flex-col flex-grow">
+                <p class="text-gray-600 mb-4 text-sm flex-grow"> A CRM tool and SaaS project developed with fellow students to help dealerships manage car inventory, documents, and reminders. Built using Agile, Figma, SQL, and Python.
+                </p>
+                <div class="flex justify-between items-center mt-auto">
+                  <button class="text-primary font-semibold hover:underline text-sm view-project-btn" data-project="drivewise">View Details</button>
+                  <button class="text-gray-400 hover:text-primary view-project-btn" data-project="drivewise" aria-label="View DriveWise Project Details"> <i class="fas fa-expand-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 3: Snow Man -->
+          <div class="slide">
+            <div class="project-card bg-white rounded-xl overflow-hidden shadow-lg">
+              <div class="relative overflow-hidden h-60 bg-black"> <!-- Added bg-black as fallback -->
+                <!-- === Replaced <img> with Vimeo <iframe> below === -->
+                <iframe
+                  src="https://player.vimeo.com/video/839129067?background=1&autoplay=1&loop=1&muted=1"
+                  class="absolute top-0 left-0 w-full h-full" <!-- Position iframe to fill container -->
+                  frameborder="0"
+                  allow="autoplay; fullscreen; picture-in-picture"
+                  allowfullscreen
+                  title="The Snow Man Game Preview Loop"> <!-- Added title for accessibility -->
+                </iframe>
+                <!-- === End Vimeo <iframe> replacement === -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60 z-10 pointer-events-none"></div> <!-- Ensure overlay is above iframe -->
+                <div class="absolute bottom-0 left-0 p-4 md:p-6 z-10"> <!-- Ensure text is above iframe -->
+                  <h3 class="text-xl font-bold text-white">The Snow Man</h3>
+                  <p class="text-sm text-gray-200">Unreal Engine 5 Game</p>
+                </div>
+              </div>
+             <div class="p-6 flex flex-col flex-grow">
+               <p class="text-gray-600 mb-4 text-sm flex-grow"> "The Snow Man” is a first-person horror experience developed in Unreal Engine 5. Set in a haunting, snow-covered landscape, the game immerses players in a chilling narrative as they explore abandoned structures and uncover dark secrets.
+                </p>
+                <div class="flex justify-between items-center mt-auto">
+                  <button class="text-primary font-semibold hover:underline text-sm view-project-btn" data-project="snowman">View Details</button>
+                  <button class="text-gray-400 hover:text-primary view-project-btn" data-project="snowman" aria-label="View The Snow Man Project Details"> <i class="fas fa-expand-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 4: ia-hcf.org -->
+          <div class="slide">
+            <div class="project-card bg-white rounded-xl overflow-hidden shadow-lg">
+              <div class="relative overflow-hidden h-60">
+                <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
+                     alt="ia-hcf.org Healthcare Website"
+                     class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                <div class="absolute bottom-0 left-0 p-4 md:p-6">
+                  <h3 class="text-xl font-bold text-white">ia-hcf.org</h3>
+                  <p class="text-sm text-gray-200">WordPress, Elementor</p>
+                </div>
+              </div>
+              <div class="p-6 flex flex-col flex-grow">
+                <p class="text-gray-600 mb-4 text-sm flex-grow"> Website for the Iraqi American Health and Cancer Foundation. Connected Iraqi and American doctors for cancer research. SEO optimized and malware cleanup performed.
+                </p>
+                <div class="flex justify-between items-center mt-auto">
+                  <a href="https://ia-hcf.org" class="text-primary font-semibold hover:underline text-sm" target="_blank" rel="noopener noreferrer">Visit Site</a>
+                  <a href="https://ia-hcf.org" class="text-gray-400 hover:text-primary" target="_blank" rel="noopener noreferrer" aria-label="Visit ia-hcf.org website"> <i class="fas fa-external-link-alt"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 5: Royal Carriages -->
+          <div class="slide">
+            <div class="project-card bg-white rounded-xl overflow-hidden shadow-lg">
+              <div class="relative overflow-hidden h-60">
+                <img src="https://i.imgur.com/bKeu7sj.png"
+                     alt="Royal Carriages Limousine Service"
+                     class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                <div class="absolute bottom-0 left-0 p-4 md:p-6">
+                  <h3 class="text-xl font-bold text-white">Royalcarriages.com</h3>
+                  <p class="text-sm text-gray-200">WordPress, SEO, Google Ads</p>
+                </div>
+              </div>
+              <div class="p-6 flex flex-col flex-grow">
+                <p class="text-gray-600 mb-4 text-sm flex-grow"> Managed premium limousine service website. Handled SEO, malware cleanup, and managed $3000+ monthly Google Ads budget. Implemented online booking via WordPress.
+                </p>
+                 <div class="flex justify-between items-center mt-auto">
+                   <a href="https://royalcarriages.com" class="text-primary font-semibold hover:underline text-sm" target="_blank" rel="noopener noreferrer">Visit Site</a>
+                  <a href="https://royalcarriages.com" class="text-gray-400 hover:text-primary" target="_blank" rel="noopener noreferrer" aria-label="Visit RoyalCarriages.com website"> <i class="fas fa-external-link-alt"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 6: Limo Service -->
+           <div class="slide">
+            <div class="project-card bg-white rounded-xl overflow-hidden shadow-lg">
+              <div class="relative overflow-hidden h-60">
+                <!-- === Corrected Image URL Below === -->
+                <img src="https://i.imgur.com/RUoKQTn.jpeg" <!-- This is the direct image link -->
+                <!-- === End Corrected Image URL === -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                <div class="absolute bottom-0 left-0 p-4 md:p-6">
+                  <h3 class="text-xl font-bold text-white">Limoserviceinhouston.com</h3>
+                  <p class="text-sm text-gray-200">WordPress, SEO, Google Ads</p>
+                </div>
+              </div>
+             <div class="p-6 flex flex-col flex-grow">
+                <p class="text-gray-600 mb-4 text-sm flex-grow"> Developed and managed another limousine service website focusing on the Houston market. Included SEO, Google Ads management, and WordPress development.
+                </p>
+                 <div class="flex justify-between items-center mt-auto">
+                   <a href="https://limoserviceinhouston.com" class="text-primary font-semibold hover:underline text-sm" target="_blank" rel="noopener noreferrer">Visit Site</a>
+                  <a href="https://limoserviceinhouston.com" class="text-gray-400 hover:text-primary" target="_blank" rel="noopener noreferrer" aria-label="Visit LimoServiceInHouston.com website"> <i class="fas fa-external-link-alt"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- End slides-wrapper -->
+
+        <!-- Navigation Buttons -->
+        <button id="slideshow-prev" class="slideshow-nav-btn slideshow-prev" aria-label="Previous project">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button id="slideshow-next" class="slideshow-nav-btn slideshow-next" aria-label="Next project">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <!-- Dots Navigation -->
+        <div id="slideshow-dots" class="slideshow-dots">
+          <!-- Dots will be generated by JavaScript -->
+        </div>
+
+      </div> <!-- End project-slideshow-container -->
+    </div> <!-- End max-w-7xl -->
+  </section>
+
+<!-- CONTACT Section -->
+<section id="contact" class="py-20 lg:py-28 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl font-bold mb-4">
+        Get In <span class="gradient-text">Touch</span>
+      </h2>
+      <div class="w-20 h-1 bg-gradient-to-r from-primary to-secondary mx-auto"></div>
+      <p class="text-gray-600 max-w-xl mx-auto mt-6">
+        Have a project in mind or just want to chat about technology in Houston? Feel free to reach out. I'm always open to discussing new opportunities and collaborations.
+      </p>
+    </div>
+    <div class="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-xl shadow-lg">
+      <!-- **** MODIFIED ACTION URL BELOW **** -->
+      <form action="https://formspree.io/f/mldjkjvg" method="POST">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input type="text" id="name" name="name" placeholder="Your Name" required
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200">
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" id="email" name="email" placeholder="Your Email" required
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200">
+          </div>
+        </div>
+        <div class="mb-6">
+          <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+          <input type="text" id="subject" name="subject" placeholder="Subject" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200">
+        </div>
+        <div class="mb-6">
+           <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+          <textarea id="message" name="message" placeholder="Your Message" rows="5" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 resize-none"></textarea>
+        </div>
+        <div class="text-center">
+          <button type="submit" class="btn-primary w-full md:w-auto">
+            Send Message <i class="fas fa-paper-plane ml-2"></i>
+          </button>
+        </div>
+      </form>
+      <!-- **** END OF FORM **** -->
+    </div>
+  </div>
+</section>
+
+  <!-- FOOTER Section -->
+  <footer class="bg-dark text-gray-400 py-12">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <div class="mb-6">
+        <a href="#home" class="text-3xl font-bold text-white">
+          <span class="gradient-text">Sam Bayati</span>
+        </a>
+      </div>
+      <div class="flex justify-center space-x-6 mb-8">
+        <a href="https://github.com/Sam-Bayati" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile" class="text-gray-400 hover:text-primary transition duration-300 text-2xl"><i class="fab fa-github"></i></a>
+        <a href="https://linkedin.com/in/sam-bayati" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile" class="text-gray-400 hover:text-primary transition duration-300 text-2xl"><i class="fab fa-linkedin"></i></a>
+        </div>
+      <p class="text-sm">© <span id="current-year"></span> Sam Bayati. All rights reserved.</p>
+      <p class="text-xs mt-2">Houston, Texas | Designed with <i class="fas fa-heart text-secondary"></i></p>
+    </div>
+  </footer>
+
+  <!-- MODAL Section -->
+  <div id="project-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+       <button id="modal-close-btn" class="close-btn" aria-label="Close project details">×</button>
+      <div class="modal-header">
+        <h2 id="modal-title" class="text-2xl font-bold">Project Title</h2>
+      </div>
+      <div class="modal-body">
+        <div id="modal-slideshow" class="slideshow-container" aria-roledescription="carousel"> </div>
+        <div id="modal-slideshow-controls" class="slideshow-controls" role="tablist" aria-label="Slideshow controls"> </div>
+        <div id="modal-description" class="mt-8 text-gray-700 leading-relaxed prose prose-sm max-w-none"> </div>
+        <div id="modal-tech-stack" class="mt-6">
+            <h4 class="font-semibold text-dark mb-2">Technologies Used:</h4>
+            <div id="modal-tech-tags" class="flex flex-wrap gap-2">
+            </div>
+        </div>
+         <div class="flex flex-wrap gap-4 mt-6">
+           <div id="modal-live-link"></div>
+           <div id="modal-repo-link"></div>
+         </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Smooth Scrolling with Header Offset ---
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            if (href && href.startsWith('#') && href.length > 1) {
+                e.preventDefault();
+                const targetId = href;
+                const targetElement = document.querySelector(targetId);
+
+                if (targetElement) {
+                    const headerHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 70;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: "smooth"
+                    });
+                } else {
+                     console.warn("Smooth scroll target not found:", targetId);
+                     if(href === '#') {
+                         window.scrollTo({ top: 0, behavior: 'smooth'});
+                     }
+                }
+            } else if (href === '#') {
+                 e.preventDefault();
+                 window.scrollTo({ top: 0, behavior: 'smooth'});
+            }
+        });
+    });
+
+
+    // --- Active Nav Link Styling on Scroll ---
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('nav a.nav-link'); // Only desktop links
+
+    function changeNavOnScroll() {
+      let currentSectionId = '';
+      const headerHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 70;
+      const scrollPosition = window.pageYOffset + headerHeight + 20; // Add offset and buffer
+
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+
+        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+            currentSectionId = section.getAttribute('id');
+        }
+      });
+
+      if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight - 50) {
+            const lastSection = sections[sections.length - 1];
+            if (lastSection) currentSectionId = lastSection.getAttribute('id');
+       } else if (window.pageYOffset < 200) {
+            currentSectionId = 'home';
+       }
+
+      // Update only the desktop links
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        const href = link.getAttribute('href');
+        if (href && href === `#${currentSectionId}`) {
+          link.classList.add('active');
+        }
+      });
+    }
+
+    // Debounce scroll events
+    let scrollTimeout;
+    window.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(changeNavOnScroll, 50);
+    });
+    // Initial call
+    changeNavOnScroll();
+
+
+    // --- Scroll Indicator Hide ---
+    const scrollIndicator = document.getElementById('scroll-indicator');
+    if(scrollIndicator) {
+        const checkScrollIndicator = () => {
+             scrollIndicator.classList.toggle('hidden', window.pageYOffset > 50);
+        }
+        window.addEventListener('scroll', checkScrollIndicator);
+        checkScrollIndicator(); // Initial check
+    }
+
+
+    // --- Footer Current Year ---
+    const yearSpan = document.getElementById('current-year');
+    if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+
+
+    // --- Floating Particles (Simple Version) ---
+    const particlesContainer = document.getElementById('particles');
+    if (particlesContainer) {
+        requestAnimationFrame(() => {
+            const numParticles = window.innerWidth > 768 ? 25 : 15;
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                const size = Math.random() * 8 + 4;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 15 + 10}s`;
+                particle.style.animationDelay = `${Math.random() * 10}s`;
+                particle.style.transform = `scale(${Math.random() * 0.5 + 0.5})`;
+                particlesContainer.appendChild(particle);
+            }
+        });
+    }
+
+    // --- 3D Tilt Effect ---
+    const tiltElements = document.querySelectorAll('.tilt-element');
+    if (window.matchMedia('(pointer: fine)').matches) {
+        tiltElements.forEach(el => {
+            const intensity = 8;
+            el.addEventListener('mousemove', (e) => {
+                const { left, top, width, height } = el.getBoundingClientRect();
+                const x = (e.clientX - left - width / 2) / (width / 2);
+                const y = (e.clientY - top - height / 2) / (height / 2);
+                el.style.transform = `perspective(1000px) rotateY(${x * intensity}deg) rotateX(${-y * intensity}deg) scale3d(1.05, 1.05, 1.05)`;
+            });
+            el.addEventListener('mouseleave', () => {
+                el.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale3d(1, 1, 1)';
+            });
+        });
+    }
+
+    // --- Project Slideshow Logic ---
+    const slideshow = document.getElementById('project-slideshow');
+    if (slideshow) {
+        const slidesWrapper = slideshow.querySelector('.slides-wrapper');
+        const slides = slideshow.querySelectorAll('.slide');
+        const prevButton = slideshow.querySelector('#slideshow-prev');
+        const nextButton = slideshow.querySelector('#slideshow-next');
+        const dotsContainer = slideshow.querySelector('#slideshow-dots');
+        let currentIndex = 0;
+        const totalSlides = slides.length;
+        let dots = [];
+
+        function updateSlideshow() {
+            if (!slidesWrapper) return;
+            slidesWrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+            if(prevButton) prevButton.disabled = currentIndex === 0;
+            if(nextButton) nextButton.disabled = currentIndex === totalSlides - 1;
+        }
+
+        function goToSlide(index) {
+            if (index < 0 || index >= totalSlides) return;
+            currentIndex = index;
+            updateSlideshow();
+        }
+
+        if (dotsContainer && totalSlides > 0) {
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('button');
+                dot.classList.add('slideshow-dot-btn');
+                dot.setAttribute('aria-label', `Go to project ${i + 1}`);
+                dot.addEventListener('click', () => goToSlide(i));
+                dotsContainer.appendChild(dot);
+                dots.push(dot);
+            }
+        }
+
+        if (prevButton) {
+            prevButton.addEventListener('click', () => goToSlide(currentIndex - 1));
+        }
+        if (nextButton) {
+            nextButton.addEventListener('click', () => goToSlide(currentIndex + 1));
+        }
+
+        if(totalSlides > 0) {
+            updateSlideshow();
+        } else {
+            if (prevButton) prevButton.style.display = 'none';
+            if (nextButton) nextButton.style.display = 'none';
+            if (dotsContainer) dotsContainer.style.display = 'none';
+        }
+    } else {
+        console.warn("Project slideshow container not found.");
+    }
+
+
+    // --- Project Modal & Slideshow Logic (for Modal) ---
+    const modal = document.getElementById('project-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDescription = document.getElementById('modal-description');
+    const modalSlideshow = document.getElementById('modal-slideshow');
+    const modalSlideshowControls = document.getElementById('modal-slideshow-controls');
+    const modalTechTags = document.getElementById('modal-tech-tags');
+    const modalLiveLinkContainer = document.getElementById('modal-live-link');
+    const modalRepoLinkContainer = document.getElementById('modal-repo-link');
+    const closeModalBtn = document.getElementById('modal-close-btn');
+    const viewProjectBtns = document.querySelectorAll('.view-project-btn');
+
+    if (modal && modalTitle && modalDescription && modalSlideshow && modalSlideshowControls && modalTechTags && modalLiveLinkContainer && modalRepoLinkContainer && closeModalBtn) {
+
+        let currentModalSlideIndex = 0;
+        let modalSlides = [];
+        let modalDots = [];
+        let modalSlideInterval = null;
+        const modalSlideDuration = 5000;
+
+        // Using full descriptions from previous correct version
+        const projectData = {
+          'it-inventory': {
+            title: 'IT Inventory Management System',
+            description: `<p class="mb-4">This project is a comprehensive IT asset management application developed using Python's Flask framework and SQLAlchemy for database interactions (SQLite). It allows users to efficiently track hardware and software assets within an organization.</p><h4 class="font-semibold text-dark mb-2">Key Features:</h4><ul class="list-disc list-inside mb-4 space-y-1"><li>Add, edit, and delete hardware/software inventory items.</li><li>Track asset details like serial number, purchase date, assigned user, location.</li><li>Schedule and log maintenance activities for assets.</li><li>Calculate basic financial depreciation over time.</li><li>User authentication and authorization (basic implementation).</li><li>Search and filter capabilities for easy asset lookup.</li></ul><p>The system provides a clear overview of IT resources, aids in maintenance planning, and helps manage the lifecycle of assets.</p>`,
+            images: [
+              'https://i.imgur.com/B35QpG2.png',
+              'https://i.imgur.com/HvknLb6.png',
+              'https://i.imgur.com/cHjvp08.png',
+              'https://i.imgur.com/XZ0fRIy.png'
+            ],
+            tech: ['Flask', 'Python', 'SQLAlchemy', 'SQLite', 'HTML', 'CSS', 'JavaScript'],
+            liveLink: null, repoLink: 'https://github.com/Sam-Bayati/IT-Inventory-Management-System-v1/tree/main/Student-Information-System'
+          },
+           'drivewise': {
+            title: 'DriveWise - Dealership CRM/SAAS',
+            description: `<p class="mb-4">DriveWise is a Customer Relationship Management (CRM) tool and Software-as-a-Service (SaaS) project conceptualized and developed collaboratively by university students. It's designed specifically for car dealerships to streamline their operations.</p><h4 class="font-semibold text-dark mb-2">Core Functionality:</h4><ul class="list-disc list-inside mb-4 space-y-1"><li>Manage vehicle inventory (adding new cars, updating details, tracking status).</li><li>Store and manage important dealership documents electronically.</li><li>Set reminders for tasks like follow-ups, appointments, or maintenance.</li><li>Basic customer information management.</li><li>Developed using Agile methodologies, emphasizing iterative development and teamwork.</li></ul><p>The project involved utilizing tools like Figma for UI/UX design mockups, SQL for database management, and Python (potentially with a web framework like Flask or Django) for the backend logic.</p>`,
+            images: [
+              'https://i.imgur.com/n1Nv6sw.png',
+              'https://i.imgur.com/71L6RIq.png',
+              'https://i.imgur.com/QyNedFX.png',
+              'https://i.imgur.com/L2iMwGO.png'
+            ],
+            tech: ['Python', 'SQL', 'Figma', 'Agile Development', 'HTML', 'CSS', 'JavaScript'],
+            liveLink: null, repoLink: 'https://github.com/Sam-Bayati'
+          },
+          'snowman': {
+            title: 'The Snow Man - Unreal Engine Game',
+            description: `<p class="mb-4">A photorealistic first-person horror experience, “The Snow Man” was developed in Unreal Engine 5. Set in a haunting, snow-covered landscape, the game immerses players in a chilling narrative as they explore abandoned structures and uncover dark secrets. Features stunning visuals and a dynamic weather system.</p><h4 class="font-semibold text-dark mb-2">Gameplay Elements:</h4><ul class="list-disc list-inside mb-4 space-y-1"><li>First-person gameplay with slow, immersive traversal and cinematic pacing.</li><li>Photorealistic lighting, fog, and a dynamic weather system.</li><li>Trigger-based events and audio cues for psychological tension.</li><li>Environmental storytelling through objects, sound design, and visual cues.</li><li>Entirely solo-developed: programming, level design, and visual direction.</li></ul><p>This project served as an exercise in understanding game development workflows within UE5, including level design, character setup, animation integration, and scripting interactions.</p>`,
+            images: [
+              'https://i.imgur.com/xbjmagM.jpeg',
+              'https://i.imgur.com/eaBdKoJ.png',
+              'https://i.imgur.com/WEqkrGF.png',
+              'https://i.imgur.com/lpWRRNo.png'
+            ],
+            tech: ['Unreal Engine 5', 'Blueprints / C++', '3D Assets', 'Game Design Principles'],
+            liveLink: null, repoLink: 'https://github.com/Sam-Bayati'
+          }
+        };
+
+        function showModalSlide(index) {
+            if (!modalSlides || modalSlides.length === 0) return;
+            index = (index + modalSlides.length) % modalSlides.length;
+
+            modalSlides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+                slide.setAttribute('aria-hidden', String(i !== index));
+            });
+            modalDots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+                dot.setAttribute('aria-selected', String(i === index));
+                dot.setAttribute('tabindex', i === index ? '0' : '-1');
+            });
+            currentModalSlideIndex = index;
+        }
+
+        function nextModalSlide() {
+            showModalSlide(currentModalSlideIndex + 1);
+        }
+
+        function startModalSlideInterval() {
+            clearInterval(modalSlideInterval);
+            if (modalSlides.length > 1) {
+                modalSlideInterval = setInterval(nextModalSlide, modalSlideDuration);
+            }
+        }
+
+        function createModalSlideshow(images) {
+            modalSlideshow.innerHTML = '';
+            modalSlideshowControls.innerHTML = '';
+            modalSlides = [];
+            modalDots = [];
+            currentModalSlideIndex = 0;
+
+            images.forEach((imgSrc, index) => {
+                const slide = document.createElement('div');
+                slide.classList.add('slide-modal');
+                slide.style.backgroundImage = `url('${imgSrc}')`;
+                slide.setAttribute('role', 'tabpanel');
+                slide.setAttribute('aria-label', `Modal Slide ${index + 1}`);
+                slide.setAttribute('aria-hidden', 'true');
+                modalSlideshow.appendChild(slide);
+                modalSlides.push(slide);
+
+                const dot = document.createElement('button');
+                dot.classList.add('slideshow-dot-modal');
+                dot.setAttribute('role', 'tab');
+                dot.setAttribute('aria-label', `Go to modal slide ${index + 1}`);
+                dot.setAttribute('aria-selected', 'false');
+                dot.setAttribute('tabindex', '-1');
+                dot.addEventListener('click', () => {
+                    showModalSlide(index);
+                    startModalSlideInterval();
+                });
+                modalSlideshowControls.appendChild(dot);
+                modalDots.push(dot);
+            });
+
+            if (modalSlides.length > 0) {
+                 modalSlideshowControls.style.display = 'flex';
+                showModalSlide(0);
+                startModalSlideInterval();
+            } else {
+                modalSlideshowControls.style.display = 'none';
+            }
+        }
+
+        function createTechTags(techArray) {
+           modalTechTags.innerHTML = '';
+            const techStackSection = document.getElementById('modal-tech-stack');
+            if (!techArray || techArray.length === 0) {
+                if(techStackSection) techStackSection.style.display = 'none';
+                return;
+            }
+            if(techStackSection) techStackSection.style.display = 'block';
+           techArray.forEach(tech => {
+               const tag = document.createElement('span');
+               tag.classList.add('skill-tag');
+               tag.textContent = tech;
+               modalTechTags.appendChild(tag);
+           });
+       }
+
+       function createLinkButton(container, url, text, iconClass) {
+           container.innerHTML = '';
+           if (url) {
+               const link = document.createElement('a');
+               link.href = url;
+               link.target = '_blank';
+               link.rel = 'noopener noreferrer';
+               link.classList.add('btn-secondary');
+               link.innerHTML = `<i class="${iconClass} mr-2"></i> ${text}`;
+               container.appendChild(link);
+               container.style.display = 'inline-block';
+           } else {
+                container.style.display = 'none';
+           }
+       }
+
+        function openModal(projectKey) {
+          const data = projectData[projectKey];
+          if (!data) {
+              console.error("Project data not found for key:", projectKey);
+              return;
+          }
+
+          modalTitle.textContent = data.title;
+          modalDescription.innerHTML = data.description;
+          createModalSlideshow(data.images || []);
+          createTechTags(data.tech || []);
+          createLinkButton(modalLiveLinkContainer, data.liveLink, 'View Live Site', 'fas fa-external-link-alt');
+          createLinkButton(modalRepoLinkContainer, data.repoLink, 'View Code Repo', 'fab fa-github');
+
+          modal.classList.add('active');
+          body.style.overflow = 'hidden';
+          modal.focus();
+        }
+
+        function closeModal() {
+          modal.classList.remove('active');
+          body.style.overflow = '';
+          clearInterval(modalSlideInterval);
+        }
+
+        viewProjectBtns.forEach(btn => {
+          btn.addEventListener('click', (e) => {
+             e.preventDefault();
+            const projectKey = btn.getAttribute('data-project');
+            if (projectData[projectKey]) {
+                openModal(projectKey);
+            } else {
+                 console.warn("No detailed view available for this project:", projectKey);
+                 const card = btn.closest('.project-card');
+                 const visitLink = card ? card.querySelector('a[target="_blank"]') : null;
+                 if (visitLink && visitLink.href) {
+                     window.open(visitLink.href, '_blank');
+                 }
+            }
+          });
+        });
+
+        closeModalBtn.addEventListener('click', closeModal);
+
+        modal.addEventListener('click', (event) => {
+          if (event.target === modal) {
+            closeModal();
+          }
+        });
+
+         document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+             if (modal.classList.contains('active') && document.activeElement && document.activeElement.classList.contains('slideshow-dot-modal')) {
+                 if (event.key === 'ArrowRight') {
+                     const nextDotIndex = (currentModalSlideIndex + 1) % modalDots.length;
+                     modalDots[nextDotIndex].focus();
+                     showModalSlide(nextDotIndex);
+                     startModalSlideInterval();
+                 } else if (event.key === 'ArrowLeft') {
+                     const prevDotIndex = (currentModalSlideIndex - 1 + modalDots.length) % modalDots.length;
+                     modalDots[prevDotIndex].focus();
+                     showModalSlide(prevDotIndex);
+                     startModalSlideInterval();
+                 }
+            }
+        });
+
+    } else {
+        console.error("One or more modal elements could not be found in the DOM.");
+    }
+
+
+    // --- Render Tools & OS Icons using JS ---
+    function renderIconGrid(containerSelector, items) {
+        const container = document.querySelector(containerSelector);
+        if (!container) return;
+        container.innerHTML = ''; // Clear existing
+        items.forEach(itemText => {
+            const div = document.createElement('div');
+            div.className = "glass-card p-4 rounded-xl flex items-center justify-center w-24 h-24 hover:shadow-lg transition-all duration-300 transform hover:scale-110";
+            const span = document.createElement('span');
+            span.className = "text-center text-sm font-medium text-dark";
+            span.textContent = itemText;
+            div.appendChild(span);
+            container.appendChild(div);
+        });
+    }
+
+    requestAnimationFrame(() => {
+        renderIconGrid('.tools-container', [
+                'Microsoft Office', 'Jira', 'Active Directory', 'VPNs',
+                'VMware', 'Wireshark', 'Nmap', 'WordPress', 'Canva',
+                'Figma', 'Microsoft Access', 'Google Ads', 'Unreal Engine 5'
+              ]);
+        renderIconGrid('.os-container', [
+            'Kali Linux', 'Windows', 'macOS'
+        ]);
+        changeNavOnScroll(); // Initial nav state update
+    });
+
+  </script>
+
+</body>
+</html>
