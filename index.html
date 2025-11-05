@@ -195,7 +195,7 @@
     .project-slideshow-container {
       position: relative;
       width: 100%;
-      max-width: 600px; /* Adjust max-width as needed */
+      max-width: 1200px; /* Wider to accommodate 3 cards */
       margin: 0 auto; /* Center the slideshow */
       overflow: hidden; /* Hide overflowing slides */
       padding-bottom: 2.5rem; /* Add space below for dots */
@@ -208,8 +208,8 @@
     }
 
     .slide {
-      flex: 0 0 100%; /* Each slide takes full width */
-      width: 100%;
+      flex: 0 0 33.333%; /* Each slide takes 1/3 width to show 3 at a time */
+      width: 33.333%;
       box-sizing: border-box; /* Include padding in width */
       padding: 0 0.5rem; /* Add slight padding between slides if needed */
       display: flex; /* Center card inside */
@@ -566,17 +566,21 @@
               </div>
             </div>
           </div>
-          <div class="flex flex-wrap items-center gap-4">
+          <!-- ==== MODIFIED SECTION START ==== -->
+          <div class="flex flex-wrap items-center gap-4"> <!-- Added items-center -->
             <a href="#contact" class="btn-secondary">
               <i class="fas fa-paper-plane mr-2"></i> Contact Me
             </a>
+            <!-- Added GitHub Icon Link (Styled like footer) -->
             <a href="https://github.com/Sam-Bayati" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile" class="text-gray-400 hover:text-primary transition duration-300 text-2xl">
               <i class="fab fa-github"></i>
             </a>
+            <!-- Added LinkedIn Icon Link (Styled like footer) -->
             <a href="https://www.linkedin.com/in/sam-bayati-053b23249/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile" class="text-gray-400 hover:text-primary transition duration-300 text-2xl">
               <i class="fab fa-linkedin"></i>
             </a>
           </div>
+          <!-- ==== MODIFIED SECTION END ==== -->
         </div>
       </div>
     </div>
@@ -891,17 +895,18 @@
       </p>
     </div>
     <div class="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-xl shadow-lg">
+      <!-- **** MODIFIED ACTION URL BELOW **** -->
       <form action="https://formspree.io/f/mldjkjvg" method="POST">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
             <input type="text" id="name" name="name" placeholder="Your Name" required
-                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primaryfocus:border-transparent transition duration-200">
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200">
           </div>
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input type="email" id="email" name="email" placeholder="Your Email" required
-                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primaryfocus:border-transparent transition duration-200">
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200">
           </div>
         </div>
         <div class="mb-6">
@@ -920,6 +925,7 @@
           </button>
         </div>
       </form>
+      <!-- **** END OF FORM **** -->
     </div>
   </div>
 </section>
@@ -934,7 +940,7 @@
       </div>
       <div class="flex justify-center space-x-6 mb-8">
         <a href="https://github.com/Sam-Bayati" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile" class="text-gray-400 hover:text-primary transition duration-300 text-2xl"><i class="fab fa-github"></i></a>
-        <a href="https://www.linkedin.com/in/sam-bayati-053b23249/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile" class="text-gray-400 hover:text-primary transition duration-300 text-2l"><i class="fab fa-linkedin"></i></a>
+        <a href="https://www.linkedin.com/in/sam-bayati-053b23249/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile" class="text-gray-400 hover:text-primary transition duration-300 text-2xl"><i class="fab fa-linkedin"></i></a>
         </div>
       <p class="text-sm">© <span id="current-year"></span> Sam Bayati. All rights reserved.</p>
       <p class="text-xs mt-2">Houston, Texas | Designed with <i class="fas fa-heart text-secondary"></i></p>
@@ -1111,26 +1117,34 @@
 
         function updateSlideshow() {
             if (!slidesWrapper) return;
-            slidesWrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+            // Move by 33.333% per step (since we show 3 slides at once)
+            slidesWrapper.style.transform = `translateX(-${currentIndex * 33.333}%)`;
             dots.forEach((dot, index) => {
                 dot.classList.toggle('active', index === currentIndex);
             });
+            // Maximum position is when we show the last 3 slides (totalSlides - 3)
+            const maxPosition = Math.max(0, totalSlides - 3);
             if(prevButton) prevButton.disabled = currentIndex === 0;
-            if(nextButton) nextButton.disabled = currentIndex === totalSlides - 1;
+            if(nextButton) nextButton.disabled = currentIndex >= maxPosition;
         }
 
         function goToSlide(index) {
-            if (index < 0 || index >= totalSlides) return;
+            // Maximum position is when we show the last 3 slides
+            const maxPosition = Math.max(0, totalSlides - 3);
+            if (index < 0 || index > maxPosition) return;
             currentIndex = index;
             updateSlideshow();
         }
 
         if (dotsContainer && totalSlides > 0) {
             dotsContainer.innerHTML = '';
-            for (let i = 0; i < totalSlides; i++) {
+            // Create dots based on how many positions we can navigate to (showing 3 at a time)
+            const maxPosition = Math.max(0, totalSlides - 3);
+            const numDots = maxPosition + 1; // Number of positions we can navigate to
+            for (let i = 0; i < numDots; i++) {
                 const dot = document.createElement('button');
                 dot.classList.add('slideshow-dot-btn');
-                dot.setAttribute('aria-label', `Go to project ${i + 1}`);
+                dot.setAttribute('aria-label', `Go to projects ${i + 1}-${Math.min(i + 3, totalSlides)}`);
                 dot.addEventListener('click', () => goToSlide(i));
                 dotsContainer.appendChild(dot);
                 dots.push(dot);
